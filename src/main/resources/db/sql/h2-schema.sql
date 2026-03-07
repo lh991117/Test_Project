@@ -7,3 +7,12 @@ create table members
     created_date       timestamp default now() not null,
     last_modified_date timestamp
 );
+
+CREATE TABLE users
+(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    role VARCHAR(20) NOT NULL
+);
