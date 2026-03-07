@@ -1,0 +1,6 @@
+package com.malgn.auth.dto;
+
+public record LoginResponse(
+        String accessToken
+) {
+}
