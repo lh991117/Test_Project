@@ -47,3 +47,8 @@ logging:
     root: info
     web: info
     com.malgn: debug
+
+## jwt
+jwt:
+  secret: "c29tZXZlcnlsb25nc2VjcmV0a2V5Zm9yand0dGVzdGluZ3NvbWV2ZXJ5bG9uZ3NlY3JldA=="
+  access-token-expiration: 3600000
