@@ -53,7 +53,7 @@ public class AuthService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(user.getId());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId(), String.valueOf(user.getRole()));
         return new LoginResponse(accessToken);
     }
 }
