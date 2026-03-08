@@ -1,9 +1,7 @@
 # 2026 신입 Back-End 개발자 코딩 과제 - 간단한 CMS REST API
 
-2026년도 신입 Back-End 개발자 코딩 과제입니다.
-간단한 CMS(Contents Management System) REST API 를 구현하는 것이 목표입니다.
-
-외부 자료 검색 및 AI 도구 사용을 허용합니다. 다만, 제출물에 활용한 도구와 방식을 간단하게 명시해주시기 바랍니다.
+Spring Boot 기반의 간단한 CMS API 서버입니다.
+회원가입, 로그인(JWT), 콘텐츠 CRUD, 접근 권한 기능을 제공합니다.
 
 ## Spec
 
@@ -11,16 +9,9 @@
 - Spring Boot 4
 - Spring Security
 - JPA
+- JWT
 - H2 (db)
-- Lombok (필요시)
-
-## 과제 목표
-
-- 간단한 CMS 콘텐츠 관리 API 를 구현 해주세요.
-- DB Schema 모두 구현해주세요.
-- DB 는 h2 를 사용해주세요.
-- 가능한 예외처리도 구현해주세요.
-- 필요하다고 생각되는 부분은 추가로 구현해도 됩니다.
+- Lombok
 
 ## 데이터 모델
 
@@ -37,48 +28,211 @@
 | last_modified_date | 수정일 | 마지막 수정일     | timestamp                   |    |
 | last_modified_by   | 수정자 | 마지막 수정한 사용자 | varchar(50)                 |    |
 
+### Users
+| 컬럼명                | 이름   | 설명          | 데이터 타입                       | 비고 |
+|--------------------|------|-------------|------------------------------|----|
+| id                 | 아이디  | 고유 아이디      | bigint primary key not null  |    |
+| email              | 이메일  | 사용자 email   | varchar(100) not null unique |    |
+| password           | 비밀번호 | 사용자 비밀번호    | varchar(255) not null        |    |
+| name               | 이름   | 사용자 이름      | varchar(50) not null         |    |
+| role               | 역활   | 사용자 역활      | varchar(20) not null         |    |
+
 ## 구현 기능
+
+### 로그인
+
+#### API 명세서
+| 기능 | Method | URL |
+|-----|------|-----|
+| 회원가입 | POST | /auth/signup |
+| 로그인 | POST | /auth/login |
+
+#### 회원가입
+
+- **Method** : POST
+- **URL** : `/auth/signup`
+
+##### Request
+```json
+{
+  "email": "test@test.com",
+  "password": "1234",
+  "name": "tester"
+}
+```
+
+##### Response
+```json
+{
+  "id": 2,
+  "email": "test@test.com",
+  "name": "tester",
+  "role": "USER"
+}
+```
+* id가 2가 나오는 건 프로그램 실행 시 admin계정을 생성하기 때문입니다.
+
+#### 로그인
+
+- **Method** : POST
+- **URL** : `/auth/login`
+
+##### Request
+```json
+{
+  "email": "test@test.com",
+  "password": "1234"
+}
+```
+
+##### Response
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIyIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NzI5Njk4NzQsImV4cCI6MTc3Mjk3MzQ3NH0.oQDaKpgrfDi_e1m60kzpATgP0NC_FWdreGbB9IYgiTatXpHXAfB9sYCUPnH9WIst"
+}
+```
 
 ### 콘텐츠 관련 CRUD
 
-시스템에 등록된 콘텐츠에 대한 CRUD 를 필수로 구현해주세요.
+#### API 명세서
+| 기능 | Method | URL |
+|-----|------|-----|
+| 콘텐츠 생성 | POST | /contents |
+| 콘텐츠 목록 조회 | GET | /contents |
+| 콘텐츠 상세 조회 | GET | /contents/{id} |
+| 콘텐츠 수정 | PUT | /contents/{id} |
+| 콘텐츠 삭제 | DELETE | /contents/{id} |
 
-#### 기능
-- 콘텐츠 추가
-- 콘텐츠 목록 조회
-  - 반드시 페이징 처리를 해주세요.
-- 콘텐츠 상세 조회
-- 콘텐츠 수정
-- 콘텐츠 삭제
+#### 콘텐츠 생성
 
+- **Method** : POST
+- **URL** : `/contents`
 
-### 로그인
-- Spring Security 를 이용해서 로그인을 필수로 구현해주세요.
-- 로그인 방식은 자유롭게 선택하여 구현하되, `README.md` 에 명시해주세요
-- Role
-    - 관리자(ADMIN)
-    - 사용자(USER)
+##### Header
+
+- Authorization: Bearer {accessToken}
+
+##### Request
+```json
+{
+  "title": "Test Title",
+  "description": "Test description"
+}
+```
+
+##### Response
+```json
+{
+  "createdBy": "2",
+  "createdDate": "2026-03-08T20:38:07.4412475",
+  "description": "Test description",
+  "id": 1,
+  "lastModifiedBy": null,
+  "lastModifiedDate": null,
+  "title": "Test Title",
+  "viewCount": 0
+}
+```
+
+#### 콘텐츠 목록 조회
+
+- **Method** : GET
+- **URL** : `/contents`
+
+##### Response
+```json
+{
+  "content": [
+    {
+      "createdBy": "2",
+      "createdDate": "2026-03-08T20:38:07.441248",
+      "description": "Test description",
+      "id": 1,
+      "lastModifiedBy": null,
+      "lastModifiedDate": null,
+      "title": "Test Title",
+      "viewCount": 0
+    }
+  ],
+  "first": true,
+  "last": true,
+  "page": 0,
+  "size": 20,
+  "totalElements": 1,
+  "totalPages": 1
+}
+```
+
+#### 콘텐츠 상세 조회
+
+- **Method** : GET
+- **URL** : `/contents/{id}`
+
+##### Response
+```json
+{
+  "createdBy": "2",
+  "createdDate": "2026-03-08T17:15:43.119131",
+  "description": "Test description",
+  "id": 1,
+  "lastModifiedBy": null,
+  "lastModifiedDate": null,
+  "title": "Test Title",
+  "viewCount": 1
+}
+```
+
+#### 콘텐츠 수정
+
+- **Method** : PUT
+- **URL** : `/contents/{id}`
+
+##### Header
+
+- Authorization: Bearer {accessToken}
+
+##### Request
+```json
+{
+  "title": "Update title",
+  "description": "Update description"
+}
+```
+
+##### Response
+```json
+{
+  "createdBy": "2",
+  "createdDate": "2026-03-08T20:29:36.40381",
+  "description": "Update description",
+  "id": 1,
+  "lastModifiedBy": "1",
+  "lastModifiedDate": "2026-03-08T20:29:55.3911919",
+  "title": "Update title",
+  "viewCount": 0
+}
+```
+
+#### 콘텐츠 삭제
+
+- **Method** : DELETE
+- **URL** : `/contents/{id}`
+
+##### Header
+
+- Authorization: Bearer {accessToken}
 
 ### 접근 권한
 
-- 접근 권한을 필수로 구현해주세요.
-- 콘텐츠 생성자 본인만 수정 + 삭제 가능하게 구현해주세요.
-- 단, 관리자(ADMIN) 인 경우 모든 콘텐츠에 대해 수정 + 삭제할 수 있게 구현해주세요.
+- Token 내에 사용자의 역활 정보를 저장
+- 콘텐츠 수정, 삭제를 사용할 때 해당 Token에서 사용자의 id와 역활을 확인
+- 콘텐츠를 올린 본인 혹은 사용자의 역활이 "admin"인 경우 수정 및 삭제 가능
 
-## 제출
+## AI
 
-### 기한
-
-- 본 메일 수신 후 26.03.09(월) 오후 3시까지 (주)맑은기술 채용 메일(recruit@malgn.com) 로 보내주시기 바랍니다. 
-
-### 제출물
-
-- 소스코드 (Zip 또는 Github repository 링크)
-- README.md
-    - 추가 내용이나 제출물 관련 내용을 추가헤주세요.
-    - 사용한 AI 또는 참고 자료가 있다면 간단히 명시
-- REST API Docs
-    - 자유롭게 작성해서 첨부해주세요.
+- Chat GPT
+  - 오류 로그 및 검증, 개선 방향 확인
+  - 프로그램 기본 뼈대 및 구현
 
 
 
