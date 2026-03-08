@@ -1,5 +1,6 @@
 package com.malgn.contents.controller;
 
+import com.malgn.contents.dto.ContentsPageResponse;
 import com.malgn.contents.dto.ContentsRequest;
 import com.malgn.contents.dto.ContentsResponse;
 import com.malgn.contents.service.ContentsService;
@@ -28,8 +29,8 @@ public class ContentsController {
     }
 
     @GetMapping
-    public Page<ContentsResponse> getContents(Pageable pageable) {
-        return contentsService.getContents(pageable);
+    public ContentsPageResponse getContents(Pageable pageable) {
+        return ContentsPageResponse.from(contentsService.getContents(pageable));
     }
 
     @GetMapping("/{id}")
